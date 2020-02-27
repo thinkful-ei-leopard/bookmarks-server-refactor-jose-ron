@@ -12,7 +12,7 @@ bookmarkRouter
     .get((req, res, next) => {
         //retrieving property from app object
         const knexInstance = req.app.get('knexInstance')
-        
+
         //Using bookmarks service to retrieve list of books.
         BookmarksService.getAllBookmarks(knexInstance)
             .then(bookmarks => {
@@ -59,16 +59,19 @@ bookmarkRouter
 
 bookmarkRouter
     .route('/:id')
-    .get((req, res) => {
-        const { id } = req.params
-        const bookmark = bookmarks.find( e => e.id == id)
+    .get((req, res, next) => {
+        const knexInstance = req.app.get('knexInstance')    
+        BookmarksService.getById(knexInstance, req.params.id)
+            .then(bookmark => {
+                res.json(bookmark)
+            })
+            .catch(next)
     
-        if(!bookmark) {
-            logger.error(`list with id ${id} not found.`)
-            return res.status(404).send('bookmark not found')
-        }
+        // if(!bookmark) {
+        //     logger.error(`list with id ${id} not found.`)
+        //     return res.status(404).send('bookmark not found')
+        // }
     
-        res.json(bookmark)
     })
     .delete((req, res) => {
         const { id } = req.params
