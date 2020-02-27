@@ -16,9 +16,15 @@ describe.only('Bookmarks Endpoints', function() {
 
     after('disconnect from knex Instance after testing', () => knexInstance.destroy())
 
-    before('clean the bookmark table before testing', () => knexInstance('bookmarks_table').truncate())
+    // before('clean the bookmark table before testing', () => knexInstance('bookmarks_table').truncate())
 
-    afterEach('clean the bookmarks table of data', () => knexInstance('bookmarks_table').truncate())
+    // afterEach('clean the bookmarks table of data', () => knexInstance('bookmarks_table').truncate())
+
+    before('clean the bookmark table before testing', () => { 
+        return knexInstance('bookmarks_table').truncate() })
+
+    afterEach('clean the bookmarks table of data', () => { 
+        return knexInstance('bookmarks_table').truncate() })
     
     describe(`GET /articles`, () => {
 
@@ -76,3 +82,5 @@ describe.only('Bookmarks Endpoints', function() {
         })
     })
 })
+
+

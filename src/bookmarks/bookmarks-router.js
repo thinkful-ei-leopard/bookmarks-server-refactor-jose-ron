@@ -71,12 +71,6 @@ bookmarkRouter
                 res.json(bookmark)
             })
             .catch(next)
-    
-        // if(!bookmark) {
-        //     logger.error(`list with id ${id} not found.`)
-        //     return res.status(404).send('bookmark not found')
-        // }
-
     })
     .delete((req, res) => {
         const { id } = req.params
