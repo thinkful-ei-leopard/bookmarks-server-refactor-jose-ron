@@ -2,7 +2,7 @@ const express = require('express')
 const uuid = require('uuid/v4')
 const logger = require('../logger')
 const { bookmarks } = require('../store')
-const BookmarksService = require('../BookmarksService')
+const BookmarksService = require('./BookmarksService')
 
 const bookmarkRouter = express.Router()
 const bodyParser = express.json()
@@ -20,41 +20,35 @@ bookmarkRouter
             })
             .catch(next)
     })
-    .post(bodyParser, (req, res) => {
-        const { title, url, rating, description } = req.body
+    .post(bodyParser, (req, res, next) => {
+        const { title, url, description, rating } = req.body
+        const newBookmark = { title, url, description, rating}
 
         if(!title || !rating || !url) {
-            logger.error(`title, rating, url are REQUIRED`)
             return res
                     .status(400)
                     .send('invalid data')
         }
 
-        if(url.length < 5) {.0
-            logger.error(`url needs to be at least 5 chars in length`)
+        if(url.length < 5) {
             return res
                     .status(400)
                     .send('url needs to be at least 5 chars in length')
         }
-        if(Math.floor(rating) > 5) {
-            logger.error(`rating must be 1-5`)
+        if(Math.floor(rating) > 5 || Math.floor(rating) < 0) {
             return res
                 .status(400)
                 .send('rating must be 1-5')
         }
 
-        const id = uuid()
-        const bookmark = {
-            id,
-            title,
-            url,
-            rating,
-            description
-        }
-
-        bookmarks.push(bookmark)
-        logger.info(`bookmark with id ${id} created`)
-        res.status(201).location(`http://localhost:8000/bookmarks/${id}`).json({id})
+        BookmarksService.insertBookmark(
+            req.app.get('knexInstance'),
+            newBookmark
+        )
+            .then(bookmark => {
+                res.status(201).location(`/bookmarks/${bookmark.id}`).json(bookmark)
+            })
+            .catch(next)
     })
 
 bookmarkRouter

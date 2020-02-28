@@ -16,10 +16,6 @@ describe.only('Bookmarks Endpoints', function() {
 
     after('disconnect from knex Instance after testing', () => knexInstance.destroy())
 
-    // before('clean the bookmark table before testing', () => knexInstance('bookmarks_table').truncate())
-
-    // afterEach('clean the bookmarks table of data', () => knexInstance('bookmarks_table').truncate())
-
     before('clean the bookmark table before testing', () => { 
         return knexInstance('bookmarks_table').truncate() })
 
@@ -81,6 +77,37 @@ describe.only('Bookmarks Endpoints', function() {
             })
         })
     })
+
+    describe(`Post /articles`, () => {
+        it(`creates a bookmark, responding with 201 and the new bookmark`, function() {
+            this.retries(3)
+            const newBookmark = {
+                title: "twitter",
+                url: "www.twitter.com",
+                description: "for funsies",
+                rating: 5
+            }
+
+            return supertest(app)
+                .post('/bookmarks')
+                .send(newBookmark)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.title).to.eql(newBookmark.title)
+                    expect(res.body.url).to.eql(newBookmark.url)
+                    expect(res.body.description).to.eql(newBookmark.description)
+                    expect(res.body.rating).to.eql(newBookmark.rating)
+                    expect(res.body).to.have.property('id')
+                    expect(res.headers.location).to.eql(`/bookmarks/${res.body.id}`)
+                })
+                .then(postRes => 
+                    supertest(app)
+                    .get(`/bookmarks/${postRes.body.id}`)
+                    .expect(postRes.body)
+                    )
+        })
+    })
+
 })
 
 

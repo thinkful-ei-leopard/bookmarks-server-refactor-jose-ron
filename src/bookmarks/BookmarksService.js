@@ -11,6 +11,15 @@ const BookmarksService = {
             .where('id', id)
             .first()
     },
+    insertBookmark(knexInstance, newBookmark) {
+        return knexInstance
+            .insert(newBookmark)
+            .into('bookmarks_table')
+            .returning('*')
+            .then(rows => {
+                return rows[0]
+            })
+    },
 }
 
 module.exports = BookmarksService
