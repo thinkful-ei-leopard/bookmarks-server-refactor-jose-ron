@@ -22,12 +22,20 @@ bookmarkRouter
     })
     .post(bodyParser, (req, res, next) => {
         const { title, url, description, rating } = req.body
-        const newBookmark = { title, url, description, rating}
+        const newBookmark = { title, url, rating, description}
 
-        if(!title || !rating || !url) {
-            return res
-                    .status(400)
-                    .send('invalid data')
+        // if(!title || !rating || !url) {
+        //     return res
+        //             .status(400)
+        //             .send('invalid data')
+        // }
+
+        for(const [key, value] of Object.entries(newBookmark)) {
+            if(value == null) {
+                return res.status(400).json({
+                    error: { message: `missing ${key} in request body` }
+                })
+            }
         }
 
         if(url.length < 5) {

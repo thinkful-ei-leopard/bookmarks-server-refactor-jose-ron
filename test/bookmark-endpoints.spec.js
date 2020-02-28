@@ -59,7 +59,7 @@ describe.only('Bookmarks Endpoints', function() {
                     .expect(404, { error: { message: `bookmark doesn't exist` } })
             })
         })
-        context(`Given there are articles in the database`, () => {
+        context(`Given there are bookmarks in the database`, () => {
             const testBookmarks = makeBookmarksArray()
 
             beforeEach('insert bookmarks', () => {
@@ -78,7 +78,7 @@ describe.only('Bookmarks Endpoints', function() {
         })
     })
 
-    describe(`Post /articles`, () => {
+    describe.only(`Post /bookmarks`, () => {
         it(`creates a bookmark, responding with 201 and the new bookmark`, function() {
             this.retries(3)
             const newBookmark = {
@@ -105,6 +105,29 @@ describe.only('Bookmarks Endpoints', function() {
                     .get(`/bookmarks/${postRes.body.id}`)
                     .expect(postRes.body)
                     )
+        })
+
+        // Testing required fields
+        const requiredFields = ['title', 'url', 'rating']
+
+        //looping through required fields array and removing each field once?
+        requiredFields.forEach(field => {
+            const newBookmark = {
+                title: 'grailed',
+                url: "www.grailed.com",
+                rating: 5
+            }
+
+            it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+                delete newBookmark[field]
+
+                return supertest(app)
+                    .post('/bookmarks')
+                    .send(newBookmark)
+                    .expect(400, {
+                        error: { message: `missing ${field} in request body` }
+                    })
+            })
         })
     })
 
